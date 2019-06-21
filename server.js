@@ -26,11 +26,12 @@ app.get('/api/entry', (req, res) => {
       conn.query(query)
       .then((results) => {
         res.send(results)
+        conn.end();
       })
       .catch(err => {
         console.log('error', err);
-        conn.end();
         res.end();
+        conn.end();
       })
     })
     .catch((err) => {
@@ -53,13 +54,13 @@ app.post('/api/entry', (req, res) => {
     .then((conn) => {
       conn.query(query)
       .then((results) => {
-        conn.end();
         res.send(results)
+        conn.end();
       })
       .catch(err => {
         console.log('error', err);
-        conn.end();
         res.end();
+        conn.end();
       })
     })
   .catch(err => {
