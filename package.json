@@ -5,6 +5,8 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "restart": "pm2 startOrRestart ecosystem.config.js",
+    "deploy": "pm2 deploy ecosystem.config.js production",
     "start": "nodemon server.js"
   },
   "author": "",
@@ -15,5 +17,8 @@
     "dotenv": "^8.0.0",
     "express": "^4.17.1",
     "mariadb": "^2.0.5"
+  },
+  "devDependencies": {
+    "pm2": "^3.5.1"
   }
 }
