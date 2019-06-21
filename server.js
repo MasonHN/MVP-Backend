@@ -4,7 +4,7 @@ const app = express();
 const {pool} = require('./database/index')
 const fs = require('fs');
 
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 
 
 app.use(bodyParser());
@@ -14,10 +14,16 @@ app.get('/', (req, res) => {
 })
 
 app.get('/api/entry', (req, res) => {
-  console.log(req.query);
+  let query;
+  if (req.query.feeling) {
+    console.log(req.query)
+    query = `Select Exercise, Sleep, Date, Work, Relaxation, Breakfast, Lunch, Dinner, Snacks from entries where ${req.query.mood} = ${req.query.feeling}`
+  } else {
+    query = `Select * from entries`
+  }
   pool.getConnection()
     .then((conn) => {
-      conn.query(`Select Exercise, Sleep, Date, Work, Relaxation, Breakfast, Lunch, Dinner, Snacks, Social_Interactions from entries where physical_mood = '${req.query.mood}'`)
+      conn.query(query)
       .then((results) => {
         res.send(results)
       })
@@ -27,9 +33,9 @@ app.get('/api/entry', (req, res) => {
         res.end();
       })
     })
-    // .catch((err) => {
-    //   res.send(err)
-    // })
+    .catch((err) => {
+      res.send(err)
+    })
 })
 
 app.post('/api/entry', (req, res) => {
@@ -37,14 +43,11 @@ app.post('/api/entry', (req, res) => {
   let query = '';
   if (req.body.activites) {
     query = `INSERT INTO 
-    entries(Exercise, Sleep, Date, Work, Relaxation, Breakfast, Lunch, Dinner, Snacks, Social_Interactions) 
+    entries(Exercise, Sleep, Date, Work, Relaxation, Breakfast, Lunch, Dinner, Snacks) 
     Values 
-    (${req.body.exercise}, ${req.body.sleep}, '${req.body.date}', ${req.body.work}, ${req.body.relaxation}, '${req.body.breakfast}', '${req.body.lunch}', '${req.body.dinner}', '${req.body.snacks}', '${req.body.socialInteractions}')`
+    (${req.body.exercise}, ${req.body.sleep}, '${req.body.date}', ${req.body.work}, ${req.body.relaxation}, '${req.body.breakfast}', '${req.body.lunch}', '${req.body.dinner}', '${req.body.snacks}')`
   } else {
-    query = `INSERT INTO 
-      entries(emotional_mood, mental_mood, physical_mood, medical_mood) 
-      Values 
-      ('${req.body.emotional}', '${req.body.mental}', '${req.body.physical}', '${req.body.medical}')`
+    query = `UPDATE entries SET emotional = ${req.body.emotional}, mental = ${req.body.mental}, physical = ${req.body.physical}, medical = ${req.body.medical} WHERE date = '${req.body.date}'`
   }
   pool.getConnection()
     .then((conn) => {
@@ -77,7 +80,7 @@ app.listen(PORT, () => {
 // var social = ['yes', 'no'];
 
 // for (let i = 1; i <= 31; i++) {
-//   let data = `2019/1/${i}, ${Math.floor(Math.random() * 9) * 15}, ${Math.ceil(Math.random() * 16)}, ${Math.ceil(Math.random() * 16)}, ${Math.ceil(Math.random() * 16)}, ${social[Math.floor(Math.random() * 2)]}, ${meals[Math.floor(Math.random() * 6)]}, ${meals[Math.floor(Math.random() * 6)]}, ${meals[Math.floor(Math.random() * 6)]}, ${meals[Math.floor(Math.random() * 6)]}, ${emotional[Math.floor(Math.random() * 5)]}, ${mental[Math.floor(Math.random() * 5)]}, ${physical[Math.floor(Math.random() * 5)]}, ${medical[Math.floor(Math.random() * 5)]} \n`
+//   let data = `2019/1/${i}, ${Math.floor(Math.random() * 9) * 15}, ${Math.ceil(Math.random() * 16)}, ${Math.ceil(Math.random() * 16)}, ${Math.ceil(Math.random() * 16)}, ${meals[Math.floor(Math.random() * 6)]}, ${meals[Math.floor(Math.random() * 6)]}, ${meals[Math.floor(Math.random() * 6)]}, ${meals[Math.floor(Math.random() * 6)]}, ${Math.floor(Math.random() * 5)}, ${Math.floor(Math.random() * 5)}, ${Math.floor(Math.random() * 5)}, ${Math.floor(Math.random() * 5)} \n`
 
 //   fs.appendFileSync('data.csv', data, (err) => {
 //       if (err) {
@@ -88,7 +91,7 @@ app.listen(PORT, () => {
 // };
 
 // for (let i = 1; i <= 28; i++) {
-//   let data = `2019/2/${i}, ${Math.floor(Math.random() * 9) * 15}, ${Math.ceil(Math.random() * 16)}, ${Math.ceil(Math.random() * 16)}, ${Math.ceil(Math.random() * 16)}, ${social[Math.floor(Math.random() * 2)]}, ${meals[Math.floor(Math.random() * 6)]}, ${meals[Math.floor(Math.random() * 6)]}, ${meals[Math.floor(Math.random() * 6)]}, ${meals[Math.floor(Math.random() * 6)]}, ${emotional[Math.floor(Math.random() * 5)]}, ${mental[Math.floor(Math.random() * 5)]}, ${physical[Math.floor(Math.random() * 5)]}, ${medical[Math.floor(Math.random() * 5)]} \n`
+//   let data = `2019/2/${i}, ${Math.floor(Math.random() * 9) * 15}, ${Math.ceil(Math.random() * 16)}, ${Math.ceil(Math.random() * 16)}, ${Math.ceil(Math.random() * 16)}, ${meals[Math.floor(Math.random() * 6)]}, ${meals[Math.floor(Math.random() * 6)]}, ${meals[Math.floor(Math.random() * 6)]}, ${meals[Math.floor(Math.random() * 6)]}, ${Math.floor(Math.random() * 5)}, ${Math.floor(Math.random() * 5)}, ${Math.floor(Math.random() * 5)}, ${Math.floor(Math.random() * 5)} \n`
 
 //   fs.appendFileSync('data.csv', data, (err) => {
 //       if (err) {
@@ -99,7 +102,7 @@ app.listen(PORT, () => {
 // };
 
 // for (let i = 1; i <= 31; i++) {
-//   let data = `2019/3/${i}, ${Math.floor(Math.random() * 9) * 15}, ${Math.ceil(Math.random() * 16)}, ${Math.ceil(Math.random() * 16)}, ${Math.ceil(Math.random() * 16)}, ${social[Math.floor(Math.random() * 2)]}, ${meals[Math.floor(Math.random() * 6)]}, ${meals[Math.floor(Math.random() * 6)]}, ${meals[Math.floor(Math.random() * 6)]}, ${meals[Math.floor(Math.random() * 6)]}, ${emotional[Math.floor(Math.random() * 5)]}, ${mental[Math.floor(Math.random() * 5)]}, ${physical[Math.floor(Math.random() * 5)]}, ${medical[Math.floor(Math.random() * 5)]} \n`
+//   let data = `2019/3/${i}, ${Math.floor(Math.random() * 9) * 15}, ${Math.ceil(Math.random() * 16)}, ${Math.ceil(Math.random() * 16)}, ${Math.ceil(Math.random() * 16)}, ${meals[Math.floor(Math.random() * 6)]}, ${meals[Math.floor(Math.random() * 6)]}, ${meals[Math.floor(Math.random() * 6)]}, ${meals[Math.floor(Math.random() * 6)]}, ${Math.floor(Math.random() * 5)}, ${Math.floor(Math.random() * 5)}, ${Math.floor(Math.random() * 5)}, ${Math.floor(Math.random() * 5)} \n`
 
 //   fs.appendFileSync('data.csv', data, (err) => {
 //       if (err) {
@@ -110,7 +113,7 @@ app.listen(PORT, () => {
 // };
 
 // for (let i = 1; i <= 30; i++) {
-//   let data = `2019/4/${i}, ${Math.floor(Math.random() * 9) * 15}, ${Math.ceil(Math.random() * 16)}, ${Math.ceil(Math.random() * 16)}, ${Math.ceil(Math.random() * 16)}, ${social[Math.floor(Math.random() * 2)]}, ${meals[Math.floor(Math.random() * 6)]}, ${meals[Math.floor(Math.random() * 6)]}, ${meals[Math.floor(Math.random() * 6)]}, ${meals[Math.floor(Math.random() * 6)]}, ${emotional[Math.floor(Math.random() * 5)]}, ${mental[Math.floor(Math.random() * 5)]}, ${physical[Math.floor(Math.random() * 5)]}, ${medical[Math.floor(Math.random() * 5)]} \n`
+//   let data = `2019/4/${i}, ${Math.floor(Math.random() * 9) * 15}, ${Math.ceil(Math.random() * 16)}, ${Math.ceil(Math.random() * 16)}, ${Math.ceil(Math.random() * 16)}, ${meals[Math.floor(Math.random() * 6)]}, ${meals[Math.floor(Math.random() * 6)]}, ${meals[Math.floor(Math.random() * 6)]}, ${meals[Math.floor(Math.random() * 6)]}, ${Math.floor(Math.random() * 5)}, ${Math.floor(Math.random() * 5)}, ${Math.floor(Math.random() * 5)}, ${Math.floor(Math.random() * 5)} \n`
 
 //   fs.appendFileSync('data.csv', data, (err) => {
 //       if (err) {
@@ -121,7 +124,7 @@ app.listen(PORT, () => {
 // };
 
 // for (let i = 1; i <= 31; i++) {
-//   let data = `2019/5/${i}, ${Math.floor(Math.random() * 9) * 15}, ${Math.ceil(Math.random() * 16)}, ${Math.ceil(Math.random() * 16)}, ${Math.ceil(Math.random() * 16)}, ${social[Math.floor(Math.random() * 2)]}, ${meals[Math.floor(Math.random() * 6)]}, ${meals[Math.floor(Math.random() * 6)]}, ${meals[Math.floor(Math.random() * 6)]}, ${meals[Math.floor(Math.random() * 6)]}, ${emotional[Math.floor(Math.random() * 5)]}, ${mental[Math.floor(Math.random() * 5)]}, ${physical[Math.floor(Math.random() * 5)]}, ${medical[Math.floor(Math.random() * 5)]} \n`
+//   let data = `2019/5/${i}, ${Math.floor(Math.random() * 9) * 15}, ${Math.ceil(Math.random() * 16)}, ${Math.ceil(Math.random() * 16)}, ${Math.ceil(Math.random() * 16)}, ${meals[Math.floor(Math.random() * 6)]}, ${meals[Math.floor(Math.random() * 6)]}, ${meals[Math.floor(Math.random() * 6)]}, ${meals[Math.floor(Math.random() * 6)]}, ${Math.floor(Math.random() * 5)}, ${Math.floor(Math.random() * 5)}, ${Math.floor(Math.random() * 5)}, ${Math.floor(Math.random() * 5)} \n`
 
 //   fs.appendFileSync('data.csv', data, (err) => {
 //       if (err) {
