@@ -1,77 +1,89 @@
-const express = require('express');
-const bodyParser = require('body-parser');
+const express = require("express");
+const bodyParser = require("body-parser");
 const app = express();
-const {pool} = require('./database/index')
-const fs = require('fs');
+const { pool } = require("./database/index");
+const fs = require("fs");
 
 const PORT = 3000;
 
-
 app.use(bodyParser());
 
-app.get('/', (req, res) => {
-  res.send('got')
-})
+app.get("/", (req, res) => {
+  res.send("got");
+});
 
-app.get('/api/entry', (req, res) => {
+app.get("/api/entry", (req, res) => {
   let query;
   if (req.query.feeling) {
-    console.log(req.query)
-    query = `Select Exercise, Sleep, Date, Work, Relaxation, Breakfast, Lunch, Dinner, Snacks from entries where ${req.query.mood} = ${req.query.feeling}`
+    console.log(req.query);
+    query = `Select Exercise, Sleep, Date, Work, Relaxation, Breakfast, Lunch, Dinner, Snacks from entries where ${
+      req.query.mood
+    } = ${req.query.feeling}`;
   } else {
-    query = `Select * from entries`
+    query = `Select * from entries`;
   }
-  pool.getConnection()
-    .then((conn) => {
-      conn.query(query)
-      .then((results) => {
-        res.send(results)
-        conn.end();
-      })
-      .catch(err => {
-        console.log('error', err);
-        res.end();
-        conn.end();
-      })
+  pool
+    .getConnection()
+    .then(conn => {
+      conn
+        .query(query)
+        .then(results => {
+          res.send(results);
+          conn.end();
+        })
+        .catch(err => {
+          console.log("error", err);
+          res.end();
+          conn.end();
+        });
     })
-    .catch((err) => {
-      res.send(err)
-    })
-})
+    .catch(err => {
+      res.send(err);
+    });
+});
 
-app.post('/api/entry', (req, res) => {
+app.post("/api/entry", (req, res) => {
   console.log(req.body);
-  let query = '';
+  let query = "";
   if (req.body.activites) {
     query = `INSERT INTO 
     entries(Exercise, Sleep, Date, Work, Relaxation, Breakfast, Lunch, Dinner, Snacks) 
     Values 
-    (${req.body.exercise}, ${req.body.sleep}, '${req.body.date}', ${req.body.work}, ${req.body.relaxation}, '${req.body.breakfast}', '${req.body.lunch}', '${req.body.dinner}', '${req.body.snacks}')`
+    (${req.body.exercise}, ${req.body.sleep}, '${req.body.date}', ${
+      req.body.work
+    }, ${req.body.relaxation}, '${req.body.breakfast}', '${req.body.lunch}', '${
+      req.body.dinner
+    }', '${req.body.snacks}')`;
   } else {
-    query = `UPDATE entries SET emotional = ${req.body.emotional}, mental = ${req.body.mental}, physical = ${req.body.physical}, medical = ${req.body.medical} WHERE date = '${req.body.date}'`
+    query = `UPDATE entries SET emotional = ${req.body.emotional}, mental = ${
+      req.body.mental
+    }, physical = ${req.body.physical}, medical = ${
+      req.body.medical
+    } WHERE date = '${req.body.date}'`;
   }
-  pool.getConnection()
-    .then((conn) => {
-      conn.query(query)
-      .then((results) => {
-        res.send(results)
-        conn.end();
-      })
-      .catch(err => {
-        console.log('error', err);
-        res.end();
-        conn.end();
-      })
+  pool
+    .getConnection()
+    .then(conn => {
+      conn
+        .query(query)
+        .then(results => {
+          res.send(results);
+          conn.end();
+        })
+        .catch(err => {
+          console.log("error", err);
+          res.end();
+          conn.end();
+        });
     })
-  .catch(err => {
-    console.log('error', err);
-  })
+    .catch(err => {
+      console.log("error", err);
+    });
 });
 
-
 app.listen(PORT, () => {
-  console.log('listening on port 3000')
-})
+  console.log("listening on port 3000");
+});
 
 // var emotional = ['Depressed', 'Sad', 'Average', 'Happy', 'Complete Bliss'];
 // var mental = ['Scattered', 'Unproductive', 'Marginally Focused', 'Completely Focused', 'Zen God'];
@@ -88,7 +100,7 @@ app.listen(PORT, () => {
 //           console.log('error', err);
 //       }
 //   })
-  
+
 // };
 
 // for (let i = 1; i <= 28; i++) {
@@ -99,7 +111,7 @@ app.listen(PORT, () => {
 //           console.log('error', err);
 //       }
 //   })
-  
+
 // };
 
 // for (let i = 1; i <= 31; i++) {
@@ -110,7 +122,7 @@ app.listen(PORT, () => {
 //           console.log('error', err);
 //       }
 //   })
-  
+
 // };
 
 // for (let i = 1; i <= 30; i++) {
@@ -121,7 +133,7 @@ app.listen(PORT, () => {
 //           console.log('error', err);
 //       }
 //   })
-  
+
 // };
 
 // for (let i = 1; i <= 31; i++) {
@@ -132,5 +144,5 @@ app.listen(PORT, () => {
 //           console.log('error', err);
 //       }
 //   })
-  
+
 // };
